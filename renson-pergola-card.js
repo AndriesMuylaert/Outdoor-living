@@ -4,10 +4,10 @@
  * via the OverKiz integration.
  *
  * GitHub: https://github.com/AndriesMuylaert/Outdoor-living
- * Version: 1.0.0
+ * Version: 1.0.1
  */
 
-const CARD_VERSION = '1.0.0';
+const CARD_VERSION = '1.0.1';
 
 // Tilt % → visual open angle (0 = closed/flat, 100 = fully open/vertical)
 function tiltToAngle(pct) {
@@ -602,17 +602,20 @@ class RensonPergolaCard extends HTMLElement {
   }
 
   _renderPergolaSVG(roofPct, screenLPct, screenRPct, ledLOn, ledROn) {
-    // Pergola frame dimensions (isometric-like perspective)
-    // We draw a simplified front-facing 3/4 perspective pergola
-
     const louvreAngle = tiltToAngle(roofPct);
     const numLouvres = 14;
     const louvreSpacing = 22;
 
-    // Screen drop: 0% = fully retracted (top), 100% = fully extended (bottom)
-    const screenH = 90; // max pixel height of screen panel area
+    // Screen drop calculation
+    const screenH = 90; 
     const screenLH = (screenLPct / 100) * screenH;
     const screenRH = (screenRPct / 100) * screenH;
+
+    // Total width spanning between the outer columns is 290px (from X=54 to X=344)
+    // Left Screen (2/3 width) = 193px. Right Screen (1/3 width) = 97px.
+    const leftScreenWidth = 193;
+    const rightScreenWidth = 97;
+    const middleColumnX = 54 + leftScreenWidth; // X = 247
 
     // Build louvres
     let louvres = '';
@@ -621,7 +624,6 @@ class RensonPergolaCard extends HTMLElement {
       const cy = 62;
       const w = 20;
       const h = 6;
-      // Rotate around center
       louvres += `
         <rect
           x="${x - w / 2}" y="${cy - h / 2}"
@@ -660,12 +662,6 @@ class RensonPergolaCard extends HTMLElement {
           <stop offset="0%" stop-color="#d0d8e0"/>
           <stop offset="100%" stop-color="#a8b8c4"/>
         </linearGradient>
-        <clipPath id="screenLClip">
-          <rect x="52" y="100" width="145" height="90"/>
-        </clipPath>
-        <clipPath id="screenRClip">
-          <rect x="222" y="100" width="145" height="90"/>
-        </clipPath>
         <clipPath id="louvreClip">
           <rect x="42" y="42" width="336" height="42"/>
         </clipPath>
@@ -675,19 +671,19 @@ class RensonPergolaCard extends HTMLElement {
 
       <rect x="42" y="98" width="12" height="148" rx="2" fill="url(#frameGrad)" filter="url(#shadow)"/>
       <rect x="366" y="98" width="12" height="148" rx="2" fill="url(#frameGrad)" filter="url(#shadow)"/>
-      <rect x="204" y="98" width="12" height="148" rx="2" fill="url(#frameGrad)"/>
+      
+      <rect x="${middleColumnX}" y="98" width="12" height="148" rx="2" fill="url(#frameGrad)"/>
 
       <rect x="42" y="236" width="336" height="10" rx="2" fill="url(#frameGrad)"/>
-
       <rect x="42" y="95" width="336" height="10" rx="2" fill="url(#frameGrad)"/>
 
-      <rect x="54" y="100" width="145" height="90" fill="#1a2025" rx="0"/>
-      <rect x="54" y="100" width="145" height="${screenLH}" fill="#263238" rx="0"/>
-      <rect x="54" y="${100 + screenLH - 3}" width="145" height="3" fill="#37474f"/>
+      <rect x="54" y="100" width="${leftScreenWidth}" height="90" fill="#1a2025" rx="0"/>
+      <rect x="54" y="100" width="${leftScreenWidth}" height="${screenLH}" fill="#263238" rx="0"/>
+      <rect x="54" y="${100 + screenLH - 3}" width="${leftScreenWidth}" height="3" fill="#37474f"/>
 
-      <rect x="216" y="100" width="145" height="90" fill="#1a2025" rx="0"/>
-      <rect x="216" y="100" width="145" height="${screenRH}" fill="#263238" rx="0"/>
-      <rect x="216" y="${100 + screenRH - 3}" width="145" height="3" fill="#37474f"/>
+      <rect x="${middleColumnX + 12}" y="100" width="${rightScreenWidth}" height="90" fill="#1a2025" rx="0"/>
+      <rect x="${middleColumnX + 12}" y="100" width="${rightScreenWidth}" height="${screenRH}" fill="#263238" rx="0"/>
+      <rect x="${middleColumnX + 12}" y="${100 + screenRH - 3}" width="${rightScreenWidth}" height="3" fill="#37474f"/>
 
       <rect x="36" y="38" width="348" height="12" rx="3" fill="url(#frameGrad)" filter="url(#shadow)"/>
       <rect x="36" y="88" width="348" height="10" rx="3" fill="url(#frameGrad)"/>
@@ -704,8 +700,8 @@ class RensonPergolaCard extends HTMLElement {
       <circle cx="148" cy="43" r="3.5" fill="${ledLOn ? '#ffd54f' : '#263238'}" ${ledLOn ? 'filter="url(#glow)"' : ''}/>
       <circle cx="272" cy="43" r="3.5" fill="${ledROn ? '#ffd54f' : '#263238'}" ${ledROn ? 'filter="url(#glow)"' : ''}/>
 
-      ${screenLPct > 0 ? `<text x="127" y="${100 + screenLH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="DM Mono, monospace">${screenLPct}%</text>` : ''}
-      ${screenRPct > 0 ? `<text x="289" y="${100 + screenRH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="DM Mono, monospace">${screenRPct}%</text>` : ''}
+      ${screenLPct > 0 ? `<text x="${54 + (leftScreenWidth / 2)}" y="${100 + screenLH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="DM Mono, monospace">${screenLPct}%</text>` : ''}
+      ${screenRPct > 0 ? `<text x="${(middleColumnX + 12) + (rightScreenWidth / 2)}" y="${100 + screenRH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="DM Mono, monospace">${screenRPct}%</text>` : ''}
 
       <text x="210" y="82" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="9" font-family="DM Mono, monospace">${roofPct}% tilt</text>
     </svg>`;
