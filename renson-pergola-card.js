@@ -683,8 +683,6 @@ class RensonPergolaCard extends HTMLElement {
       <rect x="${rightColumnX}" y="78" width="12" height="168" rx="1" fill="url(#frameGrad)" filter="url(#shadow)"/>
       <rect x="${middleColumnX}" y="78" width="12" height="168" rx="1" fill="url(#frameGrad)"/>
 
-      <rect x="36" y="236" width="348" height="10" rx="2" fill="url(#frameGrad)"/>
-
       <rect x="36" y="38" width="348" height="12" rx="3" fill="url(#frameGrad)" filter="url(#shadow)"/>
       <rect x="36" y="78" width="348" height="16" rx="2" fill="url(#frameGrad)"/>
 
