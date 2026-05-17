@@ -103,9 +103,17 @@ class RensonPergolaCard extends HTMLElement {
     // Louvre angle for SVG
     const louvreAngle = tiltToAngle(roofPct);
 
+    // Reusable Somfy-style "my" button SVG icon
+    const myButtonIcon = `
+      <svg viewBox="0 0 24 24" class="somfy-my-icon">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+        <text x="12" y="15.5" font-family="'DM Sans', sans-serif" font-weight="800" font-size="10.5" text-anchor="middle" fill="currentColor">my</text>
+      </svg>
+    `;
+
     this.shadowRoot.innerHTML = `
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;800&family=DM+Mono:wght@400;500&display=swap');
 
         :host {
           display: block;
@@ -224,7 +232,7 @@ class RensonPergolaCard extends HTMLElement {
           transition: border-color 0.2s;
         }
 
-        /* Responsive / Compact row variant for columns */
+        /* Responsive / Compact row configuration */
         .control-row.compact {
           flex-direction: column;
           align-items: stretch;
@@ -302,6 +310,7 @@ class RensonPergolaCard extends HTMLElement {
 
         .control-row.compact .ctrl-btns {
           justify-content: space-between;
+          margin-top: 2px;
         }
 
         .control-row.compact .ctrl-btns button {
@@ -339,6 +348,11 @@ class RensonPergolaCard extends HTMLElement {
           width: 14px;
           height: 14px;
           fill: currentColor;
+        }
+        
+        button svg.somfy-my-icon {
+          width: 18px;
+          height: 18px;
         }
 
         /* Light toggle rows */
@@ -431,7 +445,6 @@ class RensonPergolaCard extends HTMLElement {
         .toggle:hover { transform: scale(1.05); }
         .toggle:active { transform: scale(0.97); }
 
-        /* 2 Column Grids */
         .two-column-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -469,23 +482,25 @@ class RensonPergolaCard extends HTMLElement {
         <div class="controls">
           <div class="section-label">Roof</div>
 
-          <div class="control-row">
-            <div class="ctrl-icon">
-              <svg viewBox="0 0 24 24" fill="${roofPct > 0 ? 'var(--accent)' : 'var(--text-muted)'}">
-                <path d="M3 13h1v7c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-4h4v4c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-7h1c.55 0 1-.45 1-1 0-.28-.11-.53-.29-.71L12 3 3.29 11.29C3.11 11.47 3 11.72 3 12c0 .55.45 1 1 1z"/>
-              </svg>
+          <div class="control-row compact">
+            <div class="ctrl-header">
+              <div class="ctrl-icon">
+                <svg viewBox="0 0 24 24" fill="${roofPct > 0 ? 'var(--accent)' : 'var(--text-muted)'}">
+                  <path d="M3 13h1v7c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-4h4v4c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-7h1c.55 0 1-.45 1-1 0-.28-.11-.53-.29-.71L12 3 3.29 11.29C3.11 11.47 3 11.72 3 12c0 .55.45 1 1 1z"/>
+                </svg>
+              </div>
+              <div class="ctrl-info">
+                <div class="ctrl-label">Roof</div>
+                <div class="ctrl-pct" style="color:var(--accent)">${roofPct}<span style="font-size:12px;color:var(--text-muted)">%</span></div>
+              </div>
             </div>
-            <div class="ctrl-info">
-              <div class="ctrl-label">Roof</div>
-              <div class="ctrl-pct" style="color:var(--accent)">${roofPct}<span style="font-size:12px;color:var(--text-muted)">%</span></div>
-              <div class="pct-bar-wrap"><div class="pct-bar" style="width:${roofPct}%"></div></div>
-            </div>
+            <div class="pct-bar-wrap"><div class="pct-bar" style="width:${roofPct}%"></div></div>
             <div class="ctrl-btns">
               <button title="Open (tilt)" id="roof-open">
                 <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
               </button>
               <button title="Stop (My)" id="roof-stop">
-                <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                ${myButtonIcon}
               </button>
               <button title="Close (tilt)" id="roof-close">
                 <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
@@ -514,7 +529,7 @@ class RensonPergolaCard extends HTMLElement {
                   <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
                 </button>
                 <button title="Stop (My)" id="scr-l-stop">
-                  <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                  ${myButtonIcon}
                 </button>
                 <button title="Open screen" id="scr-l-open">
                   <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
@@ -540,7 +555,7 @@ class RensonPergolaCard extends HTMLElement {
                   <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
                 </button>
                 <button title="Stop (My)" id="scr-r-stop">
-                  <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                  ${myButtonIcon}
                 </button>
                 <button title="Open screen" id="scr-r-open">
                   <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
