@@ -1,0 +1,8 @@
+{
+  "name": "Renson Camargue Pergola Card",
+  "description": "Lovelace custom card for the Renson Camarque pergola via the OverKiz integration.",
+  "content_in_root": false,
+  "render_readme": true,
+  "filename": "renson-pergola-card.js",
+  "homeassistant": "2023.1.0"
+}

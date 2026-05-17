@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#1a1d21"/>
+
+  <!-- Pergola frame -->
+  <!-- Posts -->
+  <rect x="72" y="220" width="22" height="230" rx="4" fill="#78909c"/>
+  <rect x="418" y="220" width="22" height="230" rx="4" fill="#78909c"/>
+  <rect x="245" y="220" width="22" height="230" rx="4" fill="#6b7f8d"/>
+
+  <!-- Top beam -->
+  <rect x="60" y="120" width="392" height="22" rx="4" fill="#78909c"/>
+  <!-- Bottom beam of roof -->
+  <rect x="60" y="196" width="392" height="16" rx="4" fill="#6b7f8d"/>
+
+  <!-- Louvres (10 of them, slightly angled) -->
+  <g>
+    <rect x="76" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 94 145)"/>
+    <rect x="116" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 134 145)"/>
+    <rect x="156" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 174 145)"/>
+    <rect x="196" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 214 145)"/>
+    <rect x="236" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 254 145)"/>
+    <rect x="276" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 294 145)"/>
+    <rect x="316" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 334 145)"/>
+    <rect x="356" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 374 145)"/>
+    <rect x="396" y="140" width="36" height="10" rx="2" fill="#b0bec5" transform="rotate(-15 414 145)"/>
+  </g>
+
+  <!-- LED glow (left 1/3) -->
+  <rect x="130" y="122" width="90" height="10" rx="5" fill="#ffd54f" opacity="0.8"/>
+  <!-- LED glow (right 2/3) -->
+  <rect x="290" y="122" width="90" height="10" rx="5" fill="#ffd54f" opacity="0.8"/>
+
+  <!-- Screens (partial drop) -->
+  <rect x="94" y="212" width="147" height="70" rx="0" fill="#263238"/>
+  <rect x="270" y="212" width="147" height="70" rx="0" fill="#263238"/>
+  <rect x="94" y="278" width="147" height="5" fill="#37474f"/>
+  <rect x="270" y="278" width="147" height="5" fill="#37474f"/>
+</svg>
