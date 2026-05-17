@@ -646,8 +646,8 @@ class RensonPergolaCard extends HTMLElement {
       ? `<rect x="115" y="48" width="65" height="6" rx="3" fill="rgba(255,213,79,0.7)" filter="url(#glow)"/>`
       : `<rect x="115" y="48" width="65" height="6" rx="3" fill="#263238" opacity="0.6"/>`;
     const ledRGlow = ledROn
-      ? `<rect x="215" y="48" width="65" height="6" rx="3" fill="rgba(255,213,79,0.7)" filter="url(#glow)"/>`
-      : `<rect x="215" y="48" width="65" height="6" rx="3" fill="#263238" opacity="0.6"/>`;
+      ? `<rect x="239.5" y="48" width="65" height="6" rx="3" fill="rgba(255,213,79,0.7)" filter="url(#glow)"/>`
+      : `<rect x="239.5" y="48" width="65" height="6" rx="3" fill="#263238" opacity="0.6"/>`;
 
     return `
     <svg class="pergola-svg" viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
