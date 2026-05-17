@@ -604,23 +604,34 @@ class RensonPergolaCard extends HTMLElement {
   _renderPergolaSVG(roofPct, screenLPct, screenRPct, ledLOn, ledROn) {
     const louvreAngle = tiltToAngle(roofPct);
     const numLouvres = 14;
-    const louvreSpacing = 22;
+    const louvreSpacing = 22.2; // Optimized spacing to span the area evenly
 
     // Screen drop calculation
     const screenH = 90; 
     const screenLH = (screenLPct / 100) * screenH;
     const screenRH = (screenRPct / 100) * screenH;
 
-    // Total width spanning between the outer columns is 290px (from X=54 to X=344)
-    // Left Screen (2/3 width) = 193px. Right Screen (1/3 width) = 97px.
-    const leftScreenWidth = 193;
-    const rightScreenWidth = 97;
-    const middleColumnX = 54 + leftScreenWidth; // X = 247
+    // Total structural inner width between outer columns is now perfectly aligned.
+    // Frame boundary coordinates matching the roof beam
+    const frameLeftX = 36;
+    const frameRightX = 384;
+    const frameWidth = frameRightX - frameLeftX; // 348px
+    
+    // Column widths are 12px. Outer columns align perfectly with outer frame edges (36 and 372)
+    const leftColumnX = 36;
+    const rightColumnX = 372;
+    
+    // Screens span from the inner edges of columns
+    // Inner space width = 372 - (36 + 12) = 324px
+    // Left screen (2/3 of 324px) = 216px. Right screen (1/3 of 324px) = 108px.
+    const leftScreenWidth = 216;
+    const rightScreenWidth = 108;
+    const middleColumnX = 36 + 12 + leftScreenWidth; // X = 264
 
-    // Build louvres
+    // Build louvres - Perfectly centered within the upper track
     let louvres = '';
     for (let i = 0; i < numLouvres; i++) {
-      const x = 52 + i * louvreSpacing;
+      const x = 55.5 + i * louvreSpacing;
       const cy = 62;
       const w = 20;
       const h = 6;
@@ -663,23 +674,22 @@ class RensonPergolaCard extends HTMLElement {
           <stop offset="100%" stop-color="#a8b8c4"/>
         </linearGradient>
         <clipPath id="louvreClip">
-          <rect x="42" y="42" width="336" height="42"/>
+          <rect x="36" y="42" width="348" height="42"/>
         </clipPath>
       </defs>
 
-      <ellipse cx="210" cy="252" rx="170" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <ellipse cx="210" cy="252" rx="178" ry="8" fill="rgba(0,0,0,0.25)"/>
 
-      <rect x="42" y="98" width="12" height="148" rx="2" fill="url(#frameGrad)" filter="url(#shadow)"/>
-      <rect x="366" y="98" width="12" height="148" rx="2" fill="url(#frameGrad)" filter="url(#shadow)"/>
-      
-      <rect x="${middleColumnX}" y="98" width="12" height="148" rx="2" fill="url(#frameGrad)"/>
+      <rect x="${leftColumnX}" y="98" width="12" height="148" rx="1" fill="url(#frameGrad)" filter="url(#shadow)"/>
+      <rect x="${rightColumnX}" y="98" width="12" height="148" rx="1" fill="url(#frameGrad)" filter="url(#shadow)"/>
+      <rect x="${middleColumnX}" y="98" width="12" height="148" rx="1" fill="url(#frameGrad)"/>
 
-      <rect x="42" y="236" width="336" height="10" rx="2" fill="url(#frameGrad)"/>
-      <rect x="42" y="95" width="336" height="10" rx="2" fill="url(#frameGrad)"/>
+      <rect x="36" y="236" width="348" height="10" rx="2" fill="url(#frameGrad)"/>
+      <rect x="36" y="95" width="348" height="10" rx="2" fill="url(#frameGrad)"/>
 
-      <rect x="54" y="100" width="${leftScreenWidth}" height="90" fill="#1a2025" rx="0"/>
-      <rect x="54" y="100" width="${leftScreenWidth}" height="${screenLH}" fill="#263238" rx="0"/>
-      <rect x="54" y="${100 + screenLH - 3}" width="${leftScreenWidth}" height="3" fill="#37474f"/>
+      <rect x="48" y="100" width="${leftScreenWidth}" height="90" fill="#1a2025" rx="0"/>
+      <rect x="48" y="100" width="${leftScreenWidth}" height="${screenLH}" fill="#263238" rx="0"/>
+      <rect x="48" y="${100 + screenLH - 3}" width="${leftScreenWidth}" height="3" fill="#37474f"/>
 
       <rect x="${middleColumnX + 12}" y="100" width="${rightScreenWidth}" height="90" fill="#1a2025" rx="0"/>
       <rect x="${middleColumnX + 12}" y="100" width="${rightScreenWidth}" height="${screenRH}" fill="#263238" rx="0"/>
@@ -687,8 +697,6 @@ class RensonPergolaCard extends HTMLElement {
 
       <rect x="36" y="38" width="348" height="12" rx="3" fill="url(#frameGrad)" filter="url(#shadow)"/>
       <rect x="36" y="88" width="348" height="10" rx="3" fill="url(#frameGrad)"/>
-      <rect x="36" y="38" width="10" height="60" rx="2" fill="#7a90a0"/>
-      <rect x="374" y="38" width="10" height="60" rx="2" fill="#7a90a0"/>
 
       <g clip-path="url(#louvreClip)">
         ${louvres}
@@ -700,7 +708,7 @@ class RensonPergolaCard extends HTMLElement {
       <circle cx="148" cy="43" r="3.5" fill="${ledLOn ? '#ffd54f' : '#263238'}" ${ledLOn ? 'filter="url(#glow)"' : ''}/>
       <circle cx="272" cy="43" r="3.5" fill="${ledROn ? '#ffd54f' : '#263238'}" ${ledROn ? 'filter="url(#glow)"' : ''}/>
 
-      ${screenLPct > 0 ? `<text x="${54 + (leftScreenWidth / 2)}" y="${100 + screenLH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="DM Mono, monospace">${screenLPct}%</text>` : ''}
+      ${screenLPct > 0 ? `<text x="${48 + (leftScreenWidth / 2)}" y="${100 + screenLH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="DM Mono, monospace">${screenLPct}%</text>` : ''}
       ${screenRPct > 0 ? `<text x="${(middleColumnX + 12) + (rightScreenWidth / 2)}" y="${100 + screenRH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="DM Mono, monospace">${screenRPct}%</text>` : ''}
 
       <text x="210" y="82" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="9" font-family="DM Mono, monospace">${roofPct}% tilt</text>
