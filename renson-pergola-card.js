@@ -7,7 +7,7 @@
  * Version: 1.0.1
  */
 
-const CARD_VERSION = '1.0.1';
+const CARD_VERSION = '1.1.0';
 
 // Tilt % → visual open angle (0 = closed/flat, 100 = fully open/vertical)
 function tiltToAngle(pct) {
@@ -58,6 +58,10 @@ class RensonPergolaCard extends HTMLElement {
       screen_right: config.screen_right || 'cover.camargue_screen_right',
       led_left: config.led_left || 'light.camargue_led_left',
       led_right: config.led_right || 'light.camargue_led_right',
+      led_left_slider: config.led_left_slider || 'number.camargue_led_li_my_position',
+      led_right_slider: config.led_right_slider || 'number.camargue_led_rec_my_position',
+      led_left_button: config.led_left_button || 'button.camargue_led_li_my_position',
+      led_right_button: config.led_right_button || 'button.camargue_led_rec_my_position',
       name: config.name || 'Renson Camargue',
       ...config,
     };
@@ -89,12 +93,22 @@ class RensonPergolaCard extends HTMLElement {
     const screenRObj = hass?.states[cfg.screen_right];
     const ledLObj = hass?.states[cfg.led_left];
     const ledRObj = hass?.states[cfg.led_right];
+    const ledLSliderObj = hass?.states[cfg.led_left_slider];
+    const ledRSliderObj = hass?.states[cfg.led_right_slider];
 
     const roofPct = tiltPct(roofObj);
     const screenLPct = coverPct(screenLObj);
     const screenRPct = coverPct(screenRObj);
     const ledLOn = ledLObj?.state === 'on';
     const ledROn = ledRObj?.state === 'on';
+
+    // LED slider values (number entity, 0-100)
+    const ledLSliderVal = ledLSliderObj ? Math.round(parseFloat(ledLSliderObj.state) || 0) : 0;
+    const ledRSliderVal = ledRSliderObj ? Math.round(parseFloat(ledRSliderObj.state) || 0) : 0;
+    const ledLMin = ledLSliderObj?.attributes?.min ?? 0;
+    const ledLMax = ledLSliderObj?.attributes?.max ?? 100;
+    const ledRMin = ledRSliderObj?.attributes?.min ?? 0;
+    const ledRMax = ledRSliderObj?.attributes?.max ?? 100;
 
     const roofSnap = snapPct(roofPct);
     const screenLSnap = snapPct(screenLPct);
@@ -340,8 +354,46 @@ class RensonPergolaCard extends HTMLElement {
           transform: scale(1.08);
         }
 
+        button:focus {
+          outline: none;
+        }
+
         button:active {
           transform: scale(0.95);
+        }
+
+        /* Range slider for LED brightness */
+        .led-slider {
+          width: 100%;
+          margin: 2px 0 0;
+          -webkit-appearance: none;
+          appearance: none;
+          height: 4px;
+          border-radius: 2px;
+          background: var(--surface2);
+          outline: none;
+          cursor: pointer;
+        }
+
+        .led-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: var(--accent2);
+          cursor: pointer;
+          box-shadow: 0 0 4px rgba(255,213,79,0.6);
+        }
+
+        .led-slider::-moz-range-thumb {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: var(--accent2);
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 0 4px rgba(255,213,79,0.6);
         }
 
         button svg {
@@ -567,30 +619,62 @@ class RensonPergolaCard extends HTMLElement {
           <div class="section-label" style="margin-top:4px">Lighting</div>
 
           <div class="two-column-grid">
-            <div class="light-row ${ledLOn ? 'on' : 'off'}">
-              <div class="light-icon ${ledLOn ? 'on' : 'off'}">
-                <svg viewBox="0 0 24 24" fill="${ledLOn ? 'var(--accent2)' : 'var(--text-muted)'}">
-                  <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
-                </svg>
+            <div class="control-row compact ${ledLOn ? 'led-on' : ''}">
+              <div class="ctrl-header">
+                <div class="ctrl-icon" style="${ledLOn ? 'background:rgba(255,213,79,0.15)' : ''}">
+                  <svg viewBox="0 0 24 24" fill="${ledLOn ? 'var(--accent2)' : 'var(--text-muted)'}">
+                    <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                  </svg>
+                </div>
+                <div class="ctrl-info">
+                  <div class="ctrl-label">LED Left</div>
+                  <div class="ctrl-pct" style="color:var(--accent2)">${ledLSliderVal}<span style="font-size:12px;color:var(--text-muted)">%</span></div>
+                </div>
               </div>
-              <div class="ctrl-info">
-                <div class="ctrl-label">LED Left</div>
-                <div class="light-state ${ledLOn ? 'on' : 'off'}">${ledLOn ? 'ON' : 'OFF'}</div>
+              <input type="range" class="led-slider" id="led-l-slider"
+                min="${ledLMin}" max="${ledLMax}" value="${ledLSliderVal}"
+                style="--pct:${ledLSliderVal}%"
+              />
+              <div class="ctrl-btns">
+                <button title="Turn on" id="led-l-on">
+                  <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+                </button>
+                <button title="My (press)" id="led-l-my">
+                  ${myButtonIcon}
+                </button>
+                <button title="Turn off" id="led-l-off">
+                  <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
               </div>
-              <button class="toggle ${ledLOn ? 'on' : 'off'}" id="led-l-toggle" title="Toggle LED Left"></button>
             </div>
 
-            <div class="light-row ${ledROn ? 'on' : 'off'}">
-              <div class="light-icon ${ledROn ? 'on' : 'off'}">
-                <svg viewBox="0 0 24 24" fill="${ledROn ? 'var(--accent2)' : 'var(--text-muted)'}">
-                  <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
-                </svg>
+            <div class="control-row compact ${ledROn ? 'led-on' : ''}">
+              <div class="ctrl-header">
+                <div class="ctrl-icon" style="${ledROn ? 'background:rgba(255,213,79,0.15)' : ''}">
+                  <svg viewBox="0 0 24 24" fill="${ledROn ? 'var(--accent2)' : 'var(--text-muted)'}">
+                    <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                  </svg>
+                </div>
+                <div class="ctrl-info">
+                  <div class="ctrl-label">LED Right</div>
+                  <div class="ctrl-pct" style="color:var(--accent2)">${ledRSliderVal}<span style="font-size:12px;color:var(--text-muted)">%</span></div>
+                </div>
               </div>
-              <div class="ctrl-info">
-                <div class="ctrl-label">LED Right</div>
-                <div class="light-state ${ledROn ? 'on' : 'off'}">${ledROn ? 'ON' : 'OFF'}</div>
+              <input type="range" class="led-slider" id="led-r-slider"
+                min="${ledRMin}" max="${ledRMax}" value="${ledRSliderVal}"
+                style="--pct:${ledRSliderVal}%"
+              />
+              <div class="ctrl-btns">
+                <button title="Turn on" id="led-r-on">
+                  <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+                </button>
+                <button title="My (press)" id="led-r-my">
+                  ${myButtonIcon}
+                </button>
+                <button title="Turn off" id="led-r-off">
+                  <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
               </div>
-              <button class="toggle ${ledROn ? 'on' : 'off'}" id="led-r-toggle" title="Toggle LED Right"></button>
             </div>
           </div>
         </div>
@@ -603,8 +687,6 @@ class RensonPergolaCard extends HTMLElement {
 
   _renderPergolaSVG(roofPct, screenLPct, screenRPct, ledLOn, ledROn) {
     const louvreAngle = tiltToAngle(roofPct);
-    const numLouvres = 14;
-    const louvreSpacing = 22.2; 
 
     // Screen drop calculation
     const screenH = 138; // Increased to match the column heights properly
@@ -622,10 +704,14 @@ class RensonPergolaCard extends HTMLElement {
     const rightScreenWidth = 108;
     const middleColumnX = 36 + 12 + leftScreenWidth; // X = 264
 
-    // Build louvres
+    // Build louvres - centered on roof midpoint x=210
+    // 14 louvres, spacing 22.2px → total span 13*22.2=288.6, start at 210-144.3=65.7
     let louvres = '';
+    const numLouvres = 14;
+    const louvreSpacing = 22.2;
+    const louvreStartX = 210 - ((numLouvres - 1) * louvreSpacing) / 2; // ~65.7
     for (let i = 0; i < numLouvres; i++) {
-      const x = 55.5 + i * louvreSpacing;
+      const x = louvreStartX + i * louvreSpacing;
       const cy = 62;
       const w = 20;
       const h = 6;
@@ -650,7 +736,7 @@ class RensonPergolaCard extends HTMLElement {
       : `<rect x="239.5" y="48" width="65" height="6" rx="3" fill="#263238" opacity="0.6"/>`;
 
     return `
-    <svg class="pergola-svg" viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+    <svg class="pergola-svg" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="4" result="blur"/>
@@ -699,7 +785,7 @@ class RensonPergolaCard extends HTMLElement {
       ${screenLPct > 0 ? `<text x="${48 + (leftScreenWidth / 2)}" y="${94 + screenLH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="DM Mono, monospace">${screenLPct}%</text>` : ''}
       ${screenRPct > 0 ? `<text x="${(middleColumnX + 12) + (rightScreenWidth / 2)}" y="${94 + screenRH - 8}" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="DM Mono, monospace">${screenRPct}%</text>` : ''}
 
-      <text x="210" y="72" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="9" font-family="DM Mono, monospace">${roofPct}% tilt</text>
+      <text x="210" y="28" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="16" font-weight="500" font-family="DM Mono, monospace">${roofPct}% tilt</text>
     </svg>`;
   }
 
@@ -740,14 +826,33 @@ class RensonPergolaCard extends HTMLElement {
       this._callService('cover', 'close_cover', cfg.screen_right);
     });
 
-    // LEDs
-    sr.getElementById('led-l-toggle')?.addEventListener('click', () => {
-      const on = this._hass?.states[cfg.led_left]?.state === 'on';
-      this._callService('light', on ? 'turn_off' : 'turn_on', cfg.led_left);
+    // LEDs – on / my / off buttons
+    sr.getElementById('led-l-on')?.addEventListener('click', () => {
+      this._callService('light', 'turn_on', cfg.led_left);
     });
-    sr.getElementById('led-r-toggle')?.addEventListener('click', () => {
-      const on = this._hass?.states[cfg.led_right]?.state === 'on';
-      this._callService('light', on ? 'turn_off' : 'turn_on', cfg.led_right);
+    sr.getElementById('led-l-off')?.addEventListener('click', () => {
+      this._callService('light', 'turn_off', cfg.led_left);
+    });
+    sr.getElementById('led-l-my')?.addEventListener('click', () => {
+      this._callService('button', 'press', cfg.led_left_button);
+    });
+
+    sr.getElementById('led-r-on')?.addEventListener('click', () => {
+      this._callService('light', 'turn_on', cfg.led_right);
+    });
+    sr.getElementById('led-r-off')?.addEventListener('click', () => {
+      this._callService('light', 'turn_off', cfg.led_right);
+    });
+    sr.getElementById('led-r-my')?.addEventListener('click', () => {
+      this._callService('button', 'press', cfg.led_right_button);
+    });
+
+    // LED sliders – set number entity on change
+    sr.getElementById('led-l-slider')?.addEventListener('change', (e) => {
+      this._callService('number', 'set_value', cfg.led_left_slider, { value: parseFloat(e.target.value) });
+    });
+    sr.getElementById('led-r-slider')?.addEventListener('change', (e) => {
+      this._callService('number', 'set_value', cfg.led_right_slider, { value: parseFloat(e.target.value) });
     });
   }
 
@@ -763,6 +868,10 @@ class RensonPergolaCard extends HTMLElement {
       screen_right: 'cover.pergola_screen_right',
       led_left: 'light.pergola_led_left',
       led_right: 'light.pergola_led_right',
+      led_left_slider: 'number.camargue_led_li_my_position',
+      led_right_slider: 'number.camargue_led_rec_my_position',
+      led_left_button: 'button.camargue_led_li_my_position',
+      led_right_button: 'button.camargue_led_rec_my_position',
     };
   }
 

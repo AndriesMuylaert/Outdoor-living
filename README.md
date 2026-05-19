@@ -13,7 +13,7 @@ A Home Assistant Lovelace custom card for the **Renson Camargue** pergola, using
 - **Live SVG visual** of the pergola: louvres animate based on actual tilt %, screens drop to their real position, LED panels glow when on.
 - **Roof louvres** — open tilt / My (stop) / close tilt with live % readout.
 - **Screen left & right** — open / My (stop) / close with live % readout.
-- **LED left & right** — toggle on/off with visual feedback (positioned at 1/3 and 2/3 of the roof).
+- **LED left & right** — on / My (preferred position) / off buttons, plus a position slider (`number` entity) with live readout.
 - Fully dark-themed, designed to blend with modern HA dashboards.
 
 ## Preview
@@ -52,6 +52,10 @@ screen_left: cover.camargue_screen_left
 screen_right: cover.camargue_screen_right
 led_left: light.camargue_led_left
 led_right: light.camargue_led_right
+led_left_slider: number.camargue_led_li_my_position
+led_right_slider: number.camargue_led_rec_my_position
+led_left_button: button.camargue_led_li_my_position
+led_right_button: button.camargue_led_rec_my_position
 ```
 
 ### Entity IDs with OverKiz
@@ -65,14 +69,19 @@ OverKiz entity IDs are auto-generated from the device names you configured in th
 | Right screen | `cover.camargue_screen_right` |
 | LED left | `light.camargue_led_left` |
 | LED right | `light.camargue_led_right` |
+| LED left position (number) | `number.camargue_led_li_my_position` |
+| LED right position (number) | `number.camargue_led_rec_my_position` |
+| LED left My button | `button.camargue_led_li_my_position` |
+| LED right My button | `button.camargue_led_rec_my_position` |
 
 ## Controls reference
 
-| Control | Open | Stop (My) | Close |
+| Control | Open/On | Stop (My) | Close/Off |
 |---|---|---|---|
 | Roof | `cover.open_cover_tilt` | `cover.stop_cover_tilt` | `cover.close_cover_tilt` |
 | Screens | `cover.open_cover` | `cover.stop_cover` | `cover.close_cover` |
-| LEDs | `light.turn_on` | — | `light.turn_off` |
+| LEDs | `light.turn_on` | `button.press` (My position) | `light.turn_off` |
+| LED position | `number.set_value` via slider | — | — |
 
 The **My** button sends the OverKiz "preferred position" stop command — works if you have a My position programmed in the Renson / Somfy app.
 
